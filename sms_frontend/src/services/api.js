@@ -1,10 +1,21 @@
-const DEFAULT_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+/**
+ * Determine API base URL from env with sensible fallbacks.
+ * Primary: REACT_APP_API_BASE_URL
+ * Fallbacks: REACT_APP_BACKEND_URL, REACT_APP_API_BASE
+ * Default: http://localhost:3001
+ */
+const ENV_BASE =
+  process.env.REACT_APP_API_BASE_URL ||
+  process.env.REACT_APP_BACKEND_URL ||
+  process.env.REACT_APP_API_BASE ||
+  "http://localhost:3001";
 
 /**
  * Wraps fetch with JSON defaults and error handling.
  */
 async function http(method, path, body) {
-  const url = `${DEFAULT_BASE}${path}`;
+  const base = ENV_BASE?.replace(/\/+$/, ""); // trim trailing slash
+  const url = `${base}${path}`;
   const init = {
     method,
     headers: {
@@ -14,7 +25,12 @@ async function http(method, path, body) {
   if (body !== undefined) {
     init.body = JSON.stringify(body);
   }
-  const res = await fetch(url, init);
+  let res;
+  try {
+    res = await fetch(url, init);
+  } catch (networkErr) {
+    throw new Error(`Network error contacting backend at ${base}: ${networkErr?.message || String(networkErr)}`);
+  }
   const text = await res.text();
   let data;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }

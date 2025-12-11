@@ -4,18 +4,20 @@ import { Toolbar, Table, Field } from './components';
 
 // PUBLIC_INTERFACE
 export default function StaffPage() {
-  /** Staff list and form wired to FastAPI endpoints. */
+  /** Staff list and form wired to FastAPI endpoints (aligned schema). */
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
-  const [form, setForm] = useState({ id: null, name: "", role: "", email: "" });
+  const [form, setForm] = useState({ id: null, first_name: "", last_name: "", email: "", role: "", phone: "" });
 
   const columns = [
     { key: 'id', header: 'ID' },
-    { key: 'name', header: 'Name' },
+    { key: 'first_name', header: 'First name' },
+    { key: 'last_name', header: 'Last name' },
+    { key: 'email', header: 'Email' },
     { key: 'role', header: 'Role' },
-    { key: 'email', header: 'Email' }
+    { key: 'phone', header: 'Phone' }
   ];
 
   async function load() {
@@ -33,13 +35,28 @@ export default function StaffPage() {
 
   useEffect(() => { load(); }, []);
 
-  function startAdd() { setForm({ id: null, name: "", role: "", email: "" }); }
-  function startEdit(row) { setForm({ id: row.id, name: row.name || "", role: row.role || "", email: row.email || "" }); }
+  function startAdd() { setForm({ id: null, first_name: "", last_name: "", email: "", role: "", phone: "" }); }
+  function startEdit(row) {
+    setForm({
+      id: row.id,
+      first_name: row.first_name || "",
+      last_name: row.last_name || "",
+      email: row.email || "",
+      role: row.role || "",
+      phone: row.phone || ""
+    });
+  }
 
   async function save(e) {
     e.preventDefault();
     try {
-      const payload = { name: form.name, role: form.role, email: form.email };
+      const payload = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email || null,
+        role: form.role || null,
+        phone: form.phone || null
+      };
       if (form.id == null) await api.createStaff(payload);
       else await api.updateStaff(form.id, payload);
       await load();
@@ -72,14 +89,20 @@ export default function StaffPage() {
 
       <h3 style={{marginTop:16}}>{form.id == null ? "Add Staff" : `Edit Staff #${form.id}`}</h3>
       <form onSubmit={save} className="form-grid" aria-label="Staff form">
-        <Field label="Name">
-          <input className="input" required value={form.name} onChange={(e)=> setForm({...form, name: e.target.value})} />
+        <Field label="First name">
+          <input className="input" required value={form.first_name} onChange={(e)=> setForm({...form, first_name: e.target.value})} />
         </Field>
-        <Field label="Role">
-          <input className="input" required value={form.role} onChange={(e)=> setForm({...form, role: e.target.value})} />
+        <Field label="Last name">
+          <input className="input" required value={form.last_name} onChange={(e)=> setForm({...form, last_name: e.target.value})} />
         </Field>
-        <Field label="Email">
+        <Field label="Email (optional)">
           <input className="input" type="email" value={form.email} onChange={(e)=> setForm({...form, email: e.target.value})} />
+        </Field>
+        <Field label="Role (optional)">
+          <input className="input" value={form.role} onChange={(e)=> setForm({...form, role: e.target.value})} />
+        </Field>
+        <Field label="Phone (optional)">
+          <input className="input" value={form.phone} onChange={(e)=> setForm({...form, phone: e.target.value})} />
         </Field>
         <div style={{gridColumn:"1 / -1", display:"flex", gap:8}}>
           <button className="btn btn-primary" type="submit">Save</button>

@@ -4,18 +4,27 @@ import { Toolbar, Table, Field } from './components';
 
 // PUBLIC_INTERFACE
 export default function TeachersPage() {
-  /** Teachers list and form for create/update, wired to FastAPI endpoints. */
+  /** Teachers list and form for create/update, aligned with backend schemas. */
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
-  const [form, setForm] = useState({ id: null, name: "", subject: "", email: "" });
+  const [form, setForm] = useState({
+    id: null,
+    first_name: "",
+    last_name: "",
+    email: "",
+    subject: "",
+    phone: ""
+  });
 
   const columns = [
     { key: 'id', header: 'ID' },
-    { key: 'name', header: 'Name' },
+    { key: 'first_name', header: 'First name' },
+    { key: 'last_name', header: 'Last name' },
+    { key: 'email', header: 'Email' },
     { key: 'subject', header: 'Subject' },
-    { key: 'email', header: 'Email' }
+    { key: 'phone', header: 'Phone' }
   ];
 
   async function load() {
@@ -34,15 +43,28 @@ export default function TeachersPage() {
   useEffect(() => { load(); }, []); // initial
 
   function startAdd() {
-    setForm({ id: null, name: "", subject: "", email: "" });
+    setForm({ id: null, first_name: "", last_name: "", email: "", subject: "", phone: "" });
   }
   function startEdit(row) {
-    setForm({ id: row.id, name: row.name || "", subject: row.subject || "", email: row.email || "" });
+    setForm({
+      id: row.id,
+      first_name: row.first_name || "",
+      last_name: row.last_name || "",
+      email: row.email || "",
+      subject: row.subject || "",
+      phone: row.phone || ""
+    });
   }
   async function save(e) {
     e.preventDefault();
     try {
-      const payload = { name: form.name, subject: form.subject, email: form.email };
+      const payload = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email || null,
+        subject: form.subject || null,
+        phone: form.phone || null
+      };
       if (form.id == null) {
         await api.createTeacher(payload);
       } else {
@@ -84,14 +106,20 @@ export default function TeachersPage() {
 
       <h3 style={{marginTop:16}}>{form.id == null ? "Add Teacher" : `Edit Teacher #${form.id}`}</h3>
       <form onSubmit={save} className="form-grid" aria-label="Teacher form">
-        <Field label="Name">
-          <input className="input" required value={form.name} onChange={(e)=> setForm({...form, name: e.target.value})} />
+        <Field label="First name">
+          <input className="input" required value={form.first_name} onChange={(e)=> setForm({...form, first_name: e.target.value})} />
         </Field>
-        <Field label="Subject">
-          <input className="input" required value={form.subject} onChange={(e)=> setForm({...form, subject: e.target.value})} />
+        <Field label="Last name">
+          <input className="input" required value={form.last_name} onChange={(e)=> setForm({...form, last_name: e.target.value})} />
         </Field>
-        <Field label="Email">
+        <Field label="Email (optional)">
           <input className="input" type="email" value={form.email} onChange={(e)=> setForm({...form, email: e.target.value})} />
+        </Field>
+        <Field label="Subject (optional)">
+          <input className="input" value={form.subject} onChange={(e)=> setForm({...form, subject: e.target.value})} />
+        </Field>
+        <Field label="Phone (optional)">
+          <input className="input" value={form.phone} onChange={(e)=> setForm({...form, phone: e.target.value})} />
         </Field>
         <div style={{gridColumn:"1 / -1", display:"flex", gap:8}}>
           <button className="btn btn-primary" type="submit">Save</button>

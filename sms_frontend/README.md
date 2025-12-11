@@ -6,6 +6,7 @@ This React SPA provides a left sidebar navigation and CRUD screens for Teachers,
 
 - Copy `.env.example` to `.env` and set the backend base URL
   - `REACT_APP_API_BASE_URL=http://localhost:3001` (or the running backend URL)
+  - Optional fallbacks supported if the primary is not set: `REACT_APP_BACKEND_URL` or `REACT_APP_API_BASE`
 - Install and start:
   - `npm install`
   - `npm start`
@@ -14,11 +15,15 @@ This React SPA provides a left sidebar navigation and CRUD screens for Teachers,
 
 - Dashboard
 - Teachers: list/create/edit/delete with basic form and table
+  - Fields: first_name, last_name, email (optional), subject (optional), phone (optional)
 - Students: list/create/edit/delete with basic form and table
+  - Fields: first_name, last_name, email (optional), grade (optional), enrollment_date (YYYY-MM-DD, optional)
 - Exams: list/create/edit/delete with basic form and table
+  - Fields: title, subject, exam_date (YYYY-MM-DD), description (optional)
 - Staff: list/create/edit/delete with basic form and table
+  - Fields: first_name, last_name, email (optional), role (optional), phone (optional)
 
 ## Notes
 
-- All API calls are made via `src/services/api.js` and respect `REACT_APP_API_BASE_URL`.
-- If your backend uses different field names or paths, adjust endpoints in `api.js`.
+- All API calls are made via `src/services/api.js` and primarily use `REACT_APP_API_BASE_URL`. Fallbacks: `REACT_APP_BACKEND_URL`, `REACT_APP_API_BASE`.
+- REST paths used: `/teachers`, `/students`, `/exams`, `/staff` and `/{id}` for item operations.
